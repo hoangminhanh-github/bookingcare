@@ -87,7 +87,7 @@ const Home = () => {
           ></AiOutlineSearch>
           <input
             type="text"
-            placeholder="search..."
+            placeholder="search... ví dụ:tủy"
             style={{
               paddingLeft: "50px",
               display: "flex",

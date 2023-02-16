@@ -11,19 +11,25 @@ const Home = () => {
   const [next, setNext] = useState(false);
   const [page, setPage] = useState(0);
   const getData = async (start = 0) => {
-    const results = await axios.get(API_PATH, {
-      params: {
-        imgSize: "small",
-        cr: "vn",
-        cx: CX,
-        key: KEY,
-        q: searchQuery,
-        exactTerms: "BookingCare",
-        start: start,
-      },
-    });
-    setPage((prev) => prev + 10);
-    return results.data.items;
+    try {
+      const results = await axios.get(API_PATH, {
+        params: {
+          imgSize: "small",
+          cr: "vn",
+          cx: CX,
+          key: KEY,
+          q: searchQuery,
+          exactTerms: "BookingCare",
+          start: start,
+        },
+      });
+      setPage((prev) => prev + 10);
+      return results.data.items;
+    } catch (err) {
+      alert(
+        "Đã vượt quá hạn ngạch cho chỉ số hạn ngạch Truy vấn và giới hạn Truy vấn mỗi ngày của dịch vụ customsearch.googleapis.com cho người tiêu dùng"
+      );
+    }
   };
 
   const handleClick = async () => {

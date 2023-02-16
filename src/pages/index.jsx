@@ -1,59 +1,50 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-// import InfiniteScroll from "react-infinite-scroller";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import { API_PATH, CX, KEY } from "@/utils/constant";
 import SearchItem from "@/components/SearchItem";
-import { CONFIG_FILES } from "next/dist/shared/lib/constants";
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [data, setData] = useState([]);
   const [next, setNext] = useState(false);
-
-  const getData = async (page = 0) => {
-    // const results = await axios.get(API_PATH, {
-    //   params: {
-    //     imgSize: "small",
-    //     cr: "vn",
-    //     cx: CX,
-    //     key: KEY,
-    //     q: searchQuery,
-    //     exactTerms: "BookingCare",
-    //     start: page,
-    //   },
-    // });
-    const results = await axios.get("http://localhost:3000/api");
-    console.log(results);
+  const [page, setPage] = useState(0);
+  const getData = async (start = 0) => {
+    const results = await axios.get(API_PATH, {
+      params: {
+        imgSize: "small",
+        cr: "vn",
+        cx: CX,
+        key: KEY,
+        q: searchQuery,
+        exactTerms: "BookingCare",
+        start: start,
+      },
+    });
+    setPage((prev) => prev + 10);
     return results.data.items;
   };
 
   const handleClick = async () => {
     const results1 = await getData();
-    // const results2 = await getData("11");
-    // setData([...results1, ...results2]);
+    let resultsRequire20 = [];
+    if (data.length == 0) {
+      resultsRequire20 = await getData("11");
+      setData([...results1, ...resultsRequire20]);
+    } else {
+      setData(results1);
+    }
     setNext(true);
-    setData(results1);
   };
 
-  const cailon = () => {
-    setData((prev) => [
-      ...prev,
-      {
-        title: "hehe",
-        snippet: "haha",
-        pagemap: {
-          cse_image: [
-            {
-              src: "https://bookingcare.vn/assets/icon/bookingcare-2020.svg",
-            },
-          ],
-        },
-      },
-    ]);
-    // console.log(1);
-    alert(1);
+  const nextFunction = async () => {
+    const results = await getData(page + 10);
+    if (results instanceof Array) {
+      setData((prev) => [...prev, ...results]);
+    } else {
+      alert("Kết quả cuối cùng !! Search với từ khóa khác để có thêm kết quả");
+    }
   };
   return (
     <div>
@@ -111,32 +102,23 @@ const Home = () => {
               setSearchQuery(e.target.value);
             }}
           ></input>
-          <button onClick={handleClick}>Click me!</button>
+          <button
+            style={{
+              position: "absolute",
+              top: "44%",
+              right: "0px",
+              backgroundColor: "#c8622eb3",
+              height: "100%",
+              borderTopRightRadius: "16px",
+              borderBottomRightRadius: "16px",
+              paddingLeft: "4px",
+            }}
+            onClick={handleClick}
+          >
+            Tìm kiếm
+          </button>
         </div>
       </div>
-      {/* <div
-        className="contents"
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "20px",
-        }}
-      >
-        <div>
-          {data &&
-            data.map((gido, i) => (
-              <SearchItem item={gido} key={i}></SearchItem>
-            ))}
-        </div>
-      </div> */}
-      <a
-        href="https://bookingcare.vn/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        click vao day
-      </a>
       <div
         className="contents"
         style={{
@@ -149,7 +131,7 @@ const Home = () => {
         <InfiniteScroll
           scrollThreshold={1}
           dataLength={data.length}
-          next={cailon}
+          next={nextFunction}
           hasMore={next}
           loader={
             <div className="loader" key={0}>
@@ -158,11 +140,7 @@ const Home = () => {
           }
         >
           {data.map((item, i) => (
-            <a
-              href="https://bookingcare.vn/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={item?.link} target="_blank" rel="noopener noreferrer">
               <SearchItem key={i} item={item}></SearchItem>
             </a>
           ))}

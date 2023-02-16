@@ -27,6 +27,8 @@ const Home = () => {
   };
 
   const handleClick = async () => {
+    setPage(0);
+    setData([]);
     const results1 = await getData();
     let resultsRequire20 = [];
     if (data.length == 0) {
